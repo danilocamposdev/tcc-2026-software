@@ -1,0 +1,101 @@
+QMenuBar {
+	background-color: #e0e0e0;
+	border-bottom: 1px solid rgba(0,0,0,0.15);
+
+}
+
+QWidget#menu {
+	border-right: 1px solid rgba(0,0,0,0.15);
+}
+
+QScrollBar {
+	background-color: #e0e0e0;
+}
+
+QScrollBar:horizontal {
+    height: 18px;
+}
+
+QScrollBar:vertical {
+    height: 18px;
+}
+
+QScrollBar::add-line, QScrollBar::sub-line {
+    width: 0px;
+    height: 0px;
+}
+
+QScrollBar::handle {
+    background-color: #a0a0a0;
+    border-radius: 4px;
+    margin: 5px;
+}
+
+QScrollBar::handle:horizontal {
+	min-width: 20px;
+}
+
+QScrollBar::handle:vertical {
+	min-height: 20px;
+}
+
+
+
+QScrollBar::handle:horizontal::hover {
+    background-color: #808080;
+}
+
+
+QWidget#sectionTitle {
+    font-weight: 500;
+}
+
+QComboBox, QDateEdit, QSpinBox, QLineEdit {
+    padding: 0.3em;
+}
+
+QPushButton, QToolButton {
+    padding: 0.4em;
+    border: 1px solid transparent;
+	border-radius: 4px;
+    background-color: transparent;
+}
+
+QWidget#menu QPushButton {
+	text-align: left;
+}
+
+QPushButton:hover, QToolButton:hover {
+    background-color: rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.15);
+}
+
+QPushButton:checked, QToolButton:checked {
+    background-color: palette(highlight);
+    color: palette(highlighted-text);
+    border: 1px solid rgba(0,0,0,0.15);
+}
+
+QTableWidget {
+    border: 0.5px solid #d0d0d0;
+	border-radius: 4px;
+}
+
+QHeaderView::section, QTableCornerButton::section {
+    background-color: #f5f5f5;
+    padding: 0.25em;
+    font-weight: bold;
+	border-right: 1px solid #d0d0d0;
+    border-bottom: 1px solid #d0d0d0;
+}
+
+QTableCornerButton::section {
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #d0d0d0;
+    border-right: 1px solid #d0d0d0;
+    border-top-left-radius: 4px;
+}
+
+QTableWidget::item {
+    padding: 0.75em;
+}
