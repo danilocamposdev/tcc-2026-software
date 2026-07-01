@@ -75,7 +75,8 @@ class SectionOrders : public Section {
 					mTable->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(order.delivery_date().to_string())));
 					mTable->setItem(row, 2, new QTableWidgetItem(QString::fromStdString(MoldRepository::instance().get_by_id(order.mold_id()).value().type())));
 					mTable->setItem(row, 3, new QTableWidgetItem(QString::number(order.quantity())));
-					mTable->setItem(row, 4, new QTableWidgetItem(QString::fromStdString(ClientRepository::instance().get_by_id(order.client_id()).value().name())));
+					//mTable->setItem(row, 4, new QTableWidgetItem(QString::fromStdString(ClientRepository::instance().get_by_id(order.client_id()).value().name())));
+					mTable->setItem(row, 4, new QTableWidgetItem(QString::fromStdString("******")));
 					mTable->setItem(row, 5, new QTableWidgetItem(QString::fromStdString(Priority::text(order.priority()))));
 					mTable->setItem(row, 6, new QTableWidgetItem(QString::number(order.produced_quantity())));
 				}

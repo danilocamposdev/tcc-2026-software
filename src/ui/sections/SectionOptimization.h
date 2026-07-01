@@ -182,7 +182,8 @@ class SectionOptimization : public Section {
 
 						QString text = QString("Matriz: %1\nCliente: %2\nPrioridade: %3\nEntrega: %4\nAtraso (dias): %5")
 							.arg(QString::fromStdString(mold->type()))
-							.arg(QString::fromStdString(client->name()))
+							//.arg(QString::fromStdString(client->name()))
+							.arg(QString::fromStdString("******"))
 							.arg(QString::fromStdString(Priority::text(order->priority())))
 							.arg(QString::fromStdString(order->delivery_date().to_string()))
 							.arg(delay);
