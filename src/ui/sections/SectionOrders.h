@@ -24,16 +24,17 @@ class SectionOrders : public Section {
 			: Section(QIcon(":icons/sticky.svg"), "Pedidos", parent)
 		{
 			createTable();
-
-			addButton(new DialogButton<OrderFormDialog>(QIcon(":/icons/plus.svg"),"Adicionar"));
-
 			connect(mTable, &QTableWidget::cellClicked, this, [this](int row, int col) {
 					int id = mTable->item(row, 0)->text().toInt();
 					EditOrderFormDialog dialog(id, this);
 					dialog.exec();
 					});
+
 			auto exportButton = new ExportButton("Pedidos", true);
+			exportButton->setTable(mTable);
 			addButton(exportButton);
+
+			addButton(new DialogButton<OrderFormDialog>(QIcon(":/icons/plus.svg"),"Adicionar"));
 
 			connect(&OrderRepository::instance(), &OrderRepository::changed, this, &SectionOrders::reload);
 			connect(&MoldRepository::instance(), &MoldRepository::changed, this, &SectionOrders::reload);

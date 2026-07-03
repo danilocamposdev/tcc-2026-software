@@ -47,7 +47,7 @@ Database::Database() {
             id                     INTEGER PRIMARY KEY AUTOINCREMENT,
             optimization_config_id INTEGER NOT NULL,
             order_id               INTEGER NOT NULL,
-            date                   TEXT NOT NULL,
+            day                    INTEGER NOT NULL,
             units                  INTEGER NOT NULL,
             FOREIGN KEY (optimization_config_id) REFERENCES optimization_configs(id) ON DELETE CASCADE,
             FOREIGN KEY (order_id)               REFERENCES orders(id)               ON DELETE RESTRICT

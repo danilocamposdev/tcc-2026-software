@@ -9,6 +9,7 @@
 #include "../dialogs/MoldFormDialog.h"
 #include "../dialogs/EditMoldFormDialog.h"
 #include "../buttons/DialogButton.h"
+#include "../buttons/ExportButton.h"
 #include <repository/MoldRepository.h>
 #include <model/Mold.h>
 
@@ -18,12 +19,15 @@ class SectionMolds : public Section {
 			: Section(QIcon(":icons/curve.svg"), "Matrizes", parent)
 	{
 		createTable();
-
 		connect(mTable, &QTableWidget::cellClicked, this, [this](int row, int col) {
 					int id = mTable->item(row, 0)->text().toInt();
 					EditMoldFormDialog dialog(id, this);
 					dialog.exec();
 					});
+
+		auto exportButton = new ExportButton("Matrizes", true);
+			exportButton->setTable(mTable);
+			addButton(exportButton);
 
 		addButton(new DialogButton<MoldFormDialog>(QIcon(":/icons/plus.svg"), "Adicionar"));
 

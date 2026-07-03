@@ -104,48 +104,23 @@ class ExportButton : public Button {
 			printer.setOutputFormat(QPrinter::PdfFormat);
 			printer.setOutputFileName(path);
 			printer.setPageOrientation(QPageLayout::Landscape);
-			printer.setPageMargins(QMarginsF(15, 15, 15, 15), QPageLayout::Millimeter);
+			printer.setPageMargins(QMarginsF(5, 5, 5, 5), QPageLayout::Millimeter);
 
 			QPainter painter(&printer);
-			painter.setPen(QPen(Qt::black, 1));
+			painter.setRenderHint(QPainter::Antialiasing, false);
+			int penWidth = std::max(1, printer.resolution() / 150);
+			painter.setPen(QPen(Qt::black, penWidth));
 
-			QRect pageRect = printer.pageRect(QPrinter::DevicePixel).toRect();
+			QRect pageRect = printer.pageLayout().paintRectPixels(printer.resolution());
 			QFontMetrics fm(painter.font());
 
 			int rowCount = mTable->rowCount();
 			int colCount = mTable->columnCount();
 			int cellPadding = 6;
 
-			// Larguras "naturais" das colunas (só usadas pra decidir o agrupamento por página)
 			QVector<int> colWidths(colCount);
 			for (int c = 0; c < colCount; ++c)
 				colWidths[c] = mTable->columnWidth(c);
-
-			// Altura do cabeçalho
-			int headerHeight = 30;
-			for (int c = 0; c < colCount; ++c) {
-				auto *header = mTable->horizontalHeaderItem(c);
-				QString text = header ? header->text() : "";
-				QRect bound = fm.boundingRect(
-						QRect(0, 0, colWidths[c] - cellPadding, 10000),
-						Qt::TextWordWrap | Qt::AlignCenter, text);
-				headerHeight = std::max(headerHeight, bound.height() + cellPadding);
-			}
-
-			// Altura de cada linha
-			QVector<int> rowHeights(rowCount);
-			for (int r = 0; r < rowCount; ++r) {
-				int maxH = 20;
-				for (int c = 0; c < colCount; ++c) {
-					auto *item = mTable->item(r, c);
-					QString text = item ? item->text() : "";
-					QRect bound = fm.boundingRect(
-							QRect(0, 0, colWidths[c] - cellPadding, 10000),
-							Qt::TextWordWrap, text);
-					maxH = std::max(maxH, bound.height() + cellPadding);
-				}
-				rowHeights[r] = maxH;
-			}
 
 			// Blocos de colunas por página (baseado na largura natural, só pra decidir quantas cabem)
 			QVector<QPair<int,int>> colPages;
@@ -180,15 +155,46 @@ class ExportButton : public Button {
 					: 1.0;
 
 				QVector<int> scaledWidths(colEnd - colStart);
-				int usedWidth = 0;
+				int xCursor = pageRect.left();
 				for (int c = colStart; c < colEnd; ++c) {
-					int w = static_cast<int>(colWidths[c] * scale);
+					int w;
+					if (c == colEnd - 1) {
+						// última coluna do bloco: fecha exatamente na borda direita
+						w = pageRect.right() - xCursor + 1;
+					} else {
+						w = static_cast<int>(colWidths[c] * scale);
+					}
 					scaledWidths[c - colStart] = w;
-					usedWidth += w;
+					xCursor += w;
 				}
-				// Ajusta a última coluna pra fechar exatamente na borda da página
-				// (evita 1-2px de sobra/falta por causa do arredondamento)
-				scaledWidths.last() += (pageRect.width() - usedWidth);
+
+				// Altura do cabeçalho — calculada com a largura ESCALADA deste bloco
+				int headerHeight = 30;
+				for (int c = colStart; c < colEnd; ++c) {
+					int w = scaledWidths[c - colStart];
+					auto *header = mTable->horizontalHeaderItem(c);
+					QString text = header ? header->text() : "";
+					QRect bound = fm.boundingRect(
+							QRect(0, 0, w - cellPadding, 10000),
+							Qt::TextWordWrap | Qt::AlignCenter, text);
+					headerHeight = std::max(headerHeight, bound.height() + cellPadding);
+				}
+
+				// Altura de cada linha — calculada com a largura ESCALADA deste bloco
+				QVector<int> rowHeights(rowCount);
+				for (int r = 0; r < rowCount; ++r) {
+					int maxH = 20;
+					for (int c = colStart; c < colEnd; ++c) {
+						int w = scaledWidths[c - colStart];
+						auto *item = mTable->item(r, c);
+						QString text = item ? item->text() : "";
+						QRect bound = fm.boundingRect(
+								QRect(0, 0, w - cellPadding, 10000),
+								Qt::TextWordWrap, text);
+						maxH = std::max(maxH, bound.height() + cellPadding);
+					}
+					rowHeights[r] = maxH;
+				}
 
 				int rowStart = 0;
 				while (rowStart < rowCount) {
@@ -198,7 +204,6 @@ class ExportButton : public Button {
 					int y = pageRect.top();
 					int x = pageRect.left();
 
-					// Cabeçalho
 					int xHeader = x;
 					for (int c = colStart; c < colEnd; ++c) {
 						int w = scaledWidths[c - colStart];
@@ -211,7 +216,6 @@ class ExportButton : public Button {
 					}
 					y += headerHeight;
 
-					// Linhas
 					int rowEnd = rowStart;
 					while (rowEnd < rowCount && y + rowHeights[rowEnd] <= pageRect.bottom()) {
 						int xCell = x;

@@ -148,7 +148,7 @@ class SectionOptimization : public Section {
 			QDate start{config->start_date().date()};
 			std::vector<std::vector<const ProductionAllocation*>> prod_by_day(config->horizon()+1);
 			for (const auto& p : productions) {
-				int col = start.daysTo(QDate{p.date().date()});
+				int col = p.day();
 				if (col >= 0 && col <= config->horizon())
 					prod_by_day[col].push_back(&p);
 			}

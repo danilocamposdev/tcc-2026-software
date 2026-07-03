@@ -9,6 +9,7 @@
 #include "../dialogs/ClientFormDialog.h"
 #include "../dialogs/EditClientFormDialog.h"
 #include "../buttons/DialogButton.h"
+#include "../buttons/ExportButton.h"
 #include <repository/ClientRepository.h>
 #include <model/Client.h>
 
@@ -19,6 +20,10 @@ class SectionClients : public Section {
 			: Section(QIcon(":icons/people.svg"), "Clientes", parent)
 		{
 			createTable();
+
+			auto exportButton = new ExportButton("Clientes", true);
+			exportButton->setTable(mTable);
+			addButton(exportButton);
 
 			addButton(new DialogButton<ClientFormDialog>(QIcon(":/icons/plus.svg"), "Adicionar"));
 
