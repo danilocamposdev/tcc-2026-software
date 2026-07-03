@@ -16,7 +16,7 @@ class SectionClients : public Section {
 
 	public:
 		SectionClients(QWidget *parent = nullptr)
-			: Section(QIcon(":icons/table.svg"), "Clientes", parent)
+			: Section(QIcon(":icons/people.svg"), "Clientes", parent)
 		{
 			createTable();
 
@@ -50,7 +50,7 @@ class SectionClients : public Section {
 
 			mStack = new QStackedWidget();
 			mStack->addWidget(mLoadingLabel); // index 0
-			mStack->addWidget(mTable);        // index 1
+			mStack->addWidget(mTable); // index 1
 
 			setContent(mStack);
 		}

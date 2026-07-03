@@ -15,7 +15,7 @@
 class SectionMolds : public Section {
 	public:
 		SectionMolds(QWidget *parent = nullptr)
-			: Section(QIcon(":icons/table.svg"), "Matrizes", parent)
+			: Section(QIcon(":icons/curve.svg"), "Matrizes", parent)
 	{
 		createTable();
 

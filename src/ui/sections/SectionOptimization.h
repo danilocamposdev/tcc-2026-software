@@ -17,54 +17,55 @@
 #include <QLabel>
 #include "../dialogs/OptimizationFormDialog.h"
 #include "../buttons/DialogButton.h"
+#include "../buttons/ExportButton.h"
 #include <model/Priority.h>
 
 class SectionOptimization : public Section {
 	Q_OBJECT
 
 	private:
-		ProductionAllocationRepository    *mProductionAllocationRepository;
-		QStackedWidget                    *mStack        = nullptr;
-		QLabel                            *mLoadingLabel = nullptr;
-		TableOptimization                 *mTable        = nullptr;
+		QStackedWidget *mStack = nullptr;
+		QWidget *mContentWidget = nullptr;
+		TableOptimization *mTable = nullptr;
+		ExportButton *mExportButton = nullptr;
 
 	public:
-		SectionOptimization(
-				ProductionAllocationRepository *productionAllocationRepository,
-				QWidget *parent = nullptr)
-			: Section(QIcon(":icons/rocket.svg"), "Otimização", parent),
-			mProductionAllocationRepository{productionAllocationRepository}
+		SectionOptimization(QWidget *parent = nullptr)
+			: Section(QIcon(":icons/rocket.svg"), "Otimização", parent)
 		{
-			Button *exportButton = new Button(QIcon(":/icons/file-earmark.svg"), "Exportar");
-			QMenu *exportMenu = new QMenu();
-			exportMenu->addAction(QIcon(":/icons/filetype-csv.svg"), "CSV");
-			exportMenu->addAction(QIcon(":/icons/file-earmark-pdf.svg"), "PDF");
-			exportButton->setMenu(exportMenu);
-			addButton(exportButton);
+			mExportButton = new ExportButton("Otimização", true);
+			mExportButton->setEnabled(false);
+			addButton(mExportButton);
 
-			auto *optimizationFormDialog = new OptimizationFormDialog();
+			Button *clearButton = new Button(QIcon(":/icons/x.svg"), "Limpar");
+			connect(clearButton, &QPushButton::clicked, this, [this]() {
+					ProductionAllocationRepository::instance().clear();
+					});
+			addButton(clearButton);
 
 			DialogButton<OptimizationFormDialog> *optimizerButton = new DialogButton<OptimizationFormDialog>(QIcon(":/icons/play.svg"),"Otimizar");
-
 			optimizerButton->dialog()->onAccepted([this, optimizerButton]() {
 					auto *d = optimizerButton->dialog();
 					optimize(
-							d->dateValue(0),   // Data de início
-							d->intValue(1),    // Períodos
-							d->intValue(2)     // Capacidade diária
+							d->dateValue(0),
+							d->intValue(1),
+							d->intValue(2)
 							);
 					});
-
-			//QPushButton *optimizerButton = new QPushButton(QIcon(":/icons/play.svg"), "Otimizar");
-			//connect(optimizerButton, &QPushButton::clicked, this, &SectionOptimization::optimize);
 			addButton(optimizerButton);
 
-			if (OptimizationConfigRepository::instance().current().has_value()) {
-				createTable();
-				auto productions = mProductionAllocationRepository->all();
-				populateTable(productions);
-				mStack->setCurrentWidget(mStack->widget(1)); // índice 1 = conteúdo
-			}
+			mStack = new QStackedWidget();
+			mStack->addWidget(new QLabel()); // index 0
+
+			auto loadingLabel = new QLabel("Carregando...");
+			loadingLabel->setAlignment(Qt::AlignCenter);
+			mStack->addWidget(loadingLabel);  // index 1
+
+			mStack->setCurrentWidget(mStack->widget(0));
+			setContent(mStack);
+
+			connect(&ProductionAllocationRepository::instance(), &ProductionAllocationRepository::changed, this, &SectionOptimization::reload);
+			reload();
 		}
 
 		private slots:
@@ -73,39 +74,41 @@ class SectionOptimization : public Section {
 				AllocationOptimizer optimizer{problem};
 				optimizer.solve();
 				optimizer.print_results();
-				optimizer.save_results(&OptimizationConfigRepository::instance(), mProductionAllocationRepository);
-
-				reload();
+				optimizer.save_results(&OptimizationConfigRepository::instance(), &ProductionAllocationRepository::instance());
 			}
 
 		void reload() {
-			if (!OptimizationConfigRepository::instance().current().has_value()) return;
+			if (!OptimizationConfigRepository::instance().current().has_value()) {
+				mStack->setCurrentWidget(mStack->widget(0));
+				mExportButton->setEnabled(false);
+				return;
+			}
 
-			if (mStack) mStack->setCurrentWidget(mLoadingLabel);
-
-			createTable();
-
+			mStack->setCurrentWidget(mStack->widget(1));
 			QTimer::singleShot(0, this, [this]() {
-					auto productions = mProductionAllocationRepository->all();
-					populateTable(productions);
-					mStack->setCurrentWidget(mStack->widget(1));
+					auto productions = ProductionAllocationRepository::instance().all();
+
+					createTable();
+
+					if (productions.empty()) {
+					mStack->setCurrentWidget(mStack->widget(0));
+					mExportButton->setEnabled(false);
+					} else {
+					mStack->setCurrentWidget(mStack->widget(2));
+					mExportButton->setEnabled(true);
+					}
 					});
 		}
 
 	private:
+
 		void createTable() {
 			auto config = OptimizationConfigRepository::instance().current();
 			if (!config.has_value()) return;
 
-			delete mStack;
-			mStack        = nullptr;
-			mTable        = nullptr;
-			mLoadingLabel = nullptr;
-
 			QDate date{config->start_date().date()};
 			mTable = new TableOptimization(date, config->daily_capacity(), config->horizon()+1);
 
-			// labels de config
 			auto *infoWidget = new QWidget();
 			auto *infoLayout = new QVBoxLayout(infoWidget);
 			infoLayout->setContentsMargins(0, 0, 0, 8);
@@ -118,27 +121,29 @@ class SectionOptimization : public Section {
 			infoLayout->addWidget(new QLabel(
 						QString("Capacidade diária: %1 unidades").arg(config->daily_capacity())));
 
-			// layout principal — info + tabela
 			auto *contentWidget = new QWidget();
 			auto *contentLayout = new QVBoxLayout(contentWidget);
 			contentLayout->setContentsMargins(0, 0, 0, 0);
 			contentLayout->addWidget(infoWidget);
 			contentLayout->addWidget(mTable);
 
-			// loading label
-			mLoadingLabel = new QLabel("Carregando...");
-			mLoadingLabel->setAlignment(Qt::AlignCenter);
+			if (mContentWidget) {
+				mStack->removeWidget(mContentWidget);
+				mContentWidget->deleteLater();
+			}
 
-			mStack = new QStackedWidget();
-			mStack->addWidget(mLoadingLabel);  // índice 0
-			mStack->addWidget(contentWidget);  // índice 1
+			mContentWidget = contentWidget;
+			mStack->addWidget(mContentWidget); // index 2
+			mExportButton->setTable(mTable);
 
-			setContent(mStack);
+			populateTable();
 		}
 
-		void populateTable(const std::vector<ProductionAllocation>& productions) {
+		void populateTable() {
 			auto config = OptimizationConfigRepository::instance().current();
 			if (!config.has_value()) return;
+
+			auto productions = ProductionAllocationRepository::instance().all();
 
 			QDate start{config->start_date().date()};
 			std::vector<std::vector<const ProductionAllocation*>> prod_by_day(config->horizon()+1);
@@ -182,8 +187,8 @@ class SectionOptimization : public Section {
 
 						QString text = QString("Matriz: %1\nCliente: %2\nPrioridade: %3\nEntrega: %4\nAtraso (dias): %5")
 							.arg(QString::fromStdString(mold->type()))
-							//.arg(QString::fromStdString(client->name()))
-							.arg(QString::fromStdString("******"))
+							.arg(QString::fromStdString(client->name()))
+							//.arg(QString::fromStdString("******"))
 							.arg(QString::fromStdString(Priority::text(order->priority())))
 							.arg(QString::fromStdString(order->delivery_date().to_string()))
 							.arg(delay);
@@ -203,7 +208,6 @@ class SectionOptimization : public Section {
 			for (int c = 0; c < mTable->columnCount(); ++c)
 				mTable->setColumnWidth(c, maxColWidth);
 
-			// só agora, com a largura final das colunas, calcula a altura das linhas
 			mTable->resizeRowsToContents();
 
 			int maxRowHeight = 0;

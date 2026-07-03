@@ -18,8 +18,14 @@ class TableOptimization : public Table {
 			for(int day = 0; day < cols; ++day) {
 				if(day == cols -1) 
 					headers.push_back("Não alocados");
-				else
-					headers.push_back(date.toString("dd/MM/yy"));
+				else {
+					QString dayName = QLocale().toString(date, "ddd").remove('.');
+					headers.push_back(QString("%1/%2/%3 - %4")
+							.arg(date.toString("dd"))
+							.arg(date.toString("MM"))
+							.arg(date.toString("yy"))
+							.arg(dayName));
+				}
 
 				date = date.addDays(1);
 			}
@@ -30,7 +36,6 @@ class TableOptimization : public Table {
 					this->setItem(row, col, new QTableWidgetItem(""));
 				}
 			}
-
 
 			setHorizontalHeaderLabels(headers);
 			setEditTriggers(QAbstractItemView::NoEditTriggers);

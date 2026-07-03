@@ -7,6 +7,7 @@
 #include <QStackedWidget>
 #include <QLabel>
 #include <QFile>
+#include <QLocale>
 #include "./ui/sections/SectionOrders.h"
 #include "./ui/sections/SectionMolds.h"
 #include "./ui/sections/SectionClients.h"
@@ -29,6 +30,8 @@ int main(int argc, char *argv[]) {
 	QApplication app(argc, argv);
 	QCoreApplication::setOrganizationName("BarbosaMinerals");
 	QCoreApplication::setApplicationName("ProductionOptimization");
+	QLocale::setDefault(QLocale(QLocale::Portuguese, QLocale::Brazil));
+
 	Database::instance();
 	DatabaseSeeder::seed();
 	QPalette palette = app.palette();
@@ -94,10 +97,8 @@ int main(int argc, char *argv[]) {
 	QButtonGroup *buttonGroup = new QButtonGroup(central);
 	buttonGroup->setExclusive(true);
 
-	auto *productionAllocationRepository = new ProductionAllocationRepository();
-
 	const QList<Section*> sections = {
-		new SectionOptimization(productionAllocationRepository),
+		new SectionOptimization(),
 		new SectionOrders(),
 		new SectionMolds(),
 		new SectionClients()

@@ -12,12 +12,16 @@ QScrollBar {
 	background-color: #e0e0e0;
 }
 
+QAbstractScrollArea::corner {
+    background-color: #e0e0e0;
+}
+
 QScrollBar:horizontal {
     height: 18px;
 }
 
 QScrollBar:vertical {
-    height: 18px;
+    width: 18px;
 }
 
 QScrollBar::add-line, QScrollBar::sub-line {
@@ -41,7 +45,7 @@ QScrollBar::handle:vertical {
 
 
 
-QScrollBar::handle:horizontal::hover {
+QScrollBar::handle:horizontal::hover, QScrollBar::handle:vertical::hover{
     background-color: #808080;
 }
 

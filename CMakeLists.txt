@@ -14,22 +14,22 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(FETCHCONTENT_BASE_DIR ${CMAKE_SOURCE_DIR}/.deps)
 
 # Find Qt6 installed in machine
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets Sql)
+find_package(Qt6 REQUIRED COMPONENTS Core Widgets Sql PrintSupport)
 
 # CPM
 file(
-  DOWNLOAD
-  https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.8/CPM.cmake
-  ${CMAKE_SOURCE_DIR}/.deps/cmake/CPM.cmake
-  EXPECTED_HASH SHA256=78ba32abdf798bc616bab7c73aac32a17bbd7b06ad9e26a6add69de8f3ae4791
+	DOWNLOAD
+	https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.40.8/CPM.cmake
+	${CMAKE_SOURCE_DIR}/.deps/cmake/CPM.cmake
+	EXPECTED_HASH SHA256=78ba32abdf798bc616bab7c73aac32a17bbd7b06ad9e26a6add69de8f3ae4791
 )
 include(${CMAKE_SOURCE_DIR}/.deps/cmake/CPM.cmake)
 
 # OR lib
 CPMAddPackage(
-    NAME tcc_2026_lib
-    GITHUB_REPOSITORY "danilocamposdev/tcc-2026"
-    GIT_TAG main
+	NAME tcc_2026_lib
+	GITHUB_REPOSITORY "danilocamposdev/tcc-2026"
+	GIT_TAG main
 )
 
 add_executable(${PROJECT_NAME}
@@ -53,6 +53,7 @@ add_executable(${PROJECT_NAME}
 	src/ui/tables/TableOptimization.h
 	src/ui/buttons/DialogButton.h
 	src/ui/buttons/Button.h
+	src/ui/buttons/ExportButton.h
 	resources.qrc
 	src/repository/OrderRepository.cpp
 	src/repository/MoldRepository.cpp
@@ -70,5 +71,6 @@ target_link_libraries(${PROJECT_NAME}
 	Qt6::Core
 	Qt6::Widgets
 	Qt6::Sql
+	Qt6::PrintSupport
 	tcc_2026_lib
 )

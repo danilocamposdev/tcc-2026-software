@@ -21,16 +21,6 @@ class TableSimple : public Table {
 			//horizontalHeader()->setDefaultSectionSize(150);
 		}
 
-		void updateData() {
-			for (int row = 0; row < 5; row++) {
-				for (int col = 0; col < this->columnCount(); col++) {
-					this->setItem(row, col, new QTableWidgetItem(""));
-				}
-			}
-			//resizeRowsToContents();
-			resizeColumnsToContents();
-		}
-
 	protected:
 		void mouseMoveEvent(QMouseEvent *event) override {
 			int row = rowAt(event->pos().y());

@@ -3,6 +3,11 @@
 #include <QSqlQuery>
 #include <QSqlError>
 
+ProductionAllocationRepository& ProductionAllocationRepository::instance() {
+	static ProductionAllocationRepository inst;
+	return inst;
+}
+
 ProductionAllocation ProductionAllocationRepository::save(ProductionAllocation allocation) {
     QSqlQuery query(Database::instance().connection());
     query.prepare(R"(

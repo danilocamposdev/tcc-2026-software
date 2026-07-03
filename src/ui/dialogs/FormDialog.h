@@ -11,6 +11,9 @@
 #include <functional>
 #include <model/Date.h>
 #include <QPushButton>
+#include <QMessageBox>
+#include <QLabel>
+#include <QMessageBox>
 
 class FormDialog : public QDialog {
 	Q_OBJECT;
@@ -31,11 +34,13 @@ class FormDialog : public QDialog {
 		std::string text;
 	};
 
-	void buildButtons(const QString accept = "Salvar", const QString reject = "Cancelar") {
+	void buildButtons(const QString acceptLabel = "Salvar", const QString rejectLabel = "Cancelar") {
 		mButtons = new QDialogButtonBox();
-		QPushButton *acceptBtn = mButtons->addButton(accept, QDialogButtonBox::AcceptRole);
-		QPushButton *rejectBtn = mButtons->addButton(reject, QDialogButtonBox::RejectRole);
-		QObject::connect(mButtons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+		QPushButton *acceptBtn = mButtons->addButton(acceptLabel, QDialogButtonBox::AcceptRole);
+		QPushButton *rejectBtn = mButtons->addButton(rejectLabel, QDialogButtonBox::RejectRole);
+		QObject::connect(mButtons, &QDialogButtonBox::accepted, this, [this]() {
+				if (validate()) accept();
+				});
 		QObject::connect(mButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 		acceptBtn->setIcon(QIcon(":/icons/check.svg"));
 		rejectBtn->setIcon(QIcon(":/icons/x.svg"));
@@ -93,8 +98,17 @@ class FormDialog : public QDialog {
 		reload();
 		combo->setEditable(true);
 		combo->setInsertPolicy(QComboBox::NoInsert);
-		if (connectFn) connectFn(reload);
+		QObject::connect(combo->lineEdit(), &QLineEdit::editingFinished, combo, [combo]() {
+				int idx = combo->currentIndex();
+				if (idx != -1) {
+				combo->setCurrentText(combo->itemText(idx));
+				}
+				});
+		if (connectFn)
+			connectFn(reload);
+
 		mForm->addRow(title, combo);
+
 	}
 
 	void addIntInput(const QString title, int min, int max, int initial = 0) {
@@ -137,4 +151,37 @@ class FormDialog : public QDialog {
 		auto *edit = qobject_cast<QLineEdit*>(mForm->itemAt(index, QFormLayout::FieldRole)->widget());
 		return edit ? edit->text().toStdString() : "";
 	}
+
+	bool validate() {
+		for (int i = 0; i < mForm->rowCount() - 1; ++i) { // -1 pra ignorar a linha dos botões
+			auto *item = mForm->itemAt(i, QFormLayout::FieldRole);
+			if (!item) continue;
+			auto *widget = item->widget();
+
+			if (auto *edit = qobject_cast<QLineEdit*>(widget)) {
+				if (edit->text().trimmed().isEmpty()) {
+					showError(i, "Campo obrigatório.");
+					return false;
+				}
+			} else if (auto *combo = qobject_cast<QComboBox*>(widget)) {
+				if (combo->currentIndex() == -1 || combo->currentData().isNull()) {
+					showError(i, "Selecione uma opção válida da lista.");
+					return false;
+				}
+			} else if (auto *spin = qobject_cast<QSpinBox*>(widget)) {
+				// min/max alredy defined
+			}
+		}
+		return true;
+	}
+
+
+	private:
+
+	void showError(int row, const QString& msg) {
+		auto *labelItem = mForm->itemAt(row, QFormLayout::LabelRole);
+		QString fieldName = labelItem ? qobject_cast<QLabel*>(labelItem->widget())->text() : "Campo";
+		QMessageBox::warning(this, "Atenção", fieldName + " " + msg);
+	}
+
 };
