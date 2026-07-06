@@ -34,29 +34,35 @@ CPMAddPackage(
 
 add_executable(${PROJECT_NAME}
 	src/main.cpp
-	src/ui/sections/Section.h
-	src/ui/sections/SectionOptimization.h
-	src/ui/dialogs/FormDialog.h
-	src/ui/dialogs/OrderFormDialog.h
-	src/ui/dialogs/OptimizationFormDialog.h
-	src/ui/dialogs/MoldFormDialog.h
-	src/ui/dialogs/ClientFormDialog.h
-	src/ui/dialogs/EditClientFormDialog.h
-	src/ui/dialogs/EditMoldFormDialog.h
-	src/ui/dialogs/EditOrderFormDialog.h
-	src/ui/dialogs/PersonalizeFormDialog.h
-	src/ui/sections/SectionOrders.h
-	src/ui/sections/SectionMolds.h
-	src/ui/sections/SectionClients.h
-	src/ui/tables/Table.h
-	src/ui/tables/TableSimple.h
-	src/ui/tables/TableOptimization.h
-	src/ui/buttons/DialogButton.h
-	src/ui/buttons/Button.h
-	src/ui/buttons/ExportButton.h
+	src/view/sections/Section.h
+	src/view/sections/OptimizationSection.h
+	src/view/dialogs/FormDialog.h
+	src/view/dialogs/OrderFormDialog.h
+	src/view/dialogs/OptimizationFormDialog.h
+	src/view/dialogs/MoldFormDialog.h
+	src/view/dialogs/OperatorFormDialog.h
+	src/view/dialogs/ClientFormDialog.h
+	src/view/dialogs/EditClientFormDialog.h
+	src/view/dialogs/EditMoldFormDialog.h
+	src/view/dialogs/EditOperatorFormDialog.h
+	src/view/dialogs/EditOrderFormDialog.h
+	src/view/dialogs/PersonalizeFormDialog.h
+	src/view/sections/SectionOrders.h
+	src/view/sections/SectionMolds.h
+	src/view/sections/SectionClients.h
+	src/view/tables/Table.h
+	src/view/tables/TableSimple.h
+	src/view/tables/optimizationTable/OptimizationTable.h
+	src/view/tables/optimizationTable/NotAllocatedsTable.h
+	src/view/tables/optimizationTable/OptimizationCellWidget.h
+	src/view/tables/optimizationTable/JobCardWidget.h
+	src/view/buttons/DialogButton.h
+	src/view/buttons/Button.h
+	src/view/buttons/ExportButton.h
 	resources.qrc
 	src/repository/OrderRepository.cpp
 	src/repository/MoldRepository.cpp
+	src/repository/OperatorRepository.cpp
 	src/repository/ClientRepository.cpp
 	src/repository/OptimizationConfigRepository.cpp
 	src/repository/ProductionAllocationRepository.cpp

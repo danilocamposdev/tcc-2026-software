@@ -19,5 +19,6 @@
     <file>icons/people.svg</file>
     <file>icons/sticky.svg</file>
     <file>icons/curve.svg</file>
+    <file>icons/operator.svg</file>
 </qresource>
 </RCC>

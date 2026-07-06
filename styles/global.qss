@@ -101,5 +101,15 @@ QTableCornerButton::section {
 }
 
 QTableWidget::item {
-    padding: 0.75em;
+    padding: 0.5em;
+}
+
+JobCardWidget {
+	border: 0.5px solid #d0d0d0;
+	padding: 0.25em;
+}
+
+#delayLabel {
+    color: #A32D2D;
+    font-weight: 600;
 }

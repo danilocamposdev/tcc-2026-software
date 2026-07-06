@@ -8,10 +8,11 @@
 #include <QLabel>
 #include <QFile>
 #include <QLocale>
-#include "./ui/sections/SectionOrders.h"
-#include "./ui/sections/SectionMolds.h"
-#include "./ui/sections/SectionClients.h"
-#include "./ui/sections/SectionOptimization.h"
+#include "./view/sections/SectionOrders.h"
+#include "./view/sections/SectionMolds.h"
+#include "./view/sections/SectionOperators.h"
+#include "./view/sections/SectionClients.h"
+#include "./view/sections/OptimizationSection.h"
 #include <QPalette>
 #include <QStyleFactory>
 #include <QMenuBar>
@@ -22,8 +23,8 @@
 #include <repository/ClientRepository.h>
 #include <repository/OptimizationConfigRepository.h>
 #include <repository/ProductionAllocationRepository.h>
-#include "./ui/dialogs/PersonalizeFormDialog.h"
-#include "./ui/buttons/Button.h"
+#include "./view/dialogs/PersonalizeFormDialog.h"
+#include "./view/buttons/Button.h"
 
 
 int main(int argc, char *argv[]) {
@@ -98,9 +99,10 @@ int main(int argc, char *argv[]) {
 	buttonGroup->setExclusive(true);
 
 	const QList<Section*> sections = {
-		new SectionOptimization(),
+		new OptimizationSection(),
 		new SectionOrders(),
 		new SectionMolds(),
+		new SectionOperators(),
 		new SectionClients()
 	};
 

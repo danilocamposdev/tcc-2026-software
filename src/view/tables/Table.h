@@ -20,8 +20,21 @@ class Table : public QTableWidget {
 
 			horizontalHeader()->setObjectName("horizontalHeader");
 			verticalHeader()->setObjectName("verticalHeader");
-			verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+			//verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 		}
+
+		Table(QWidget *parent = nullptr)
+			: QTableWidget(parent)
+		{
+			setFocusPolicy(Qt::NoFocus);
+			setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
+			setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+
+			horizontalHeader()->setObjectName("horizontalHeader");
+			verticalHeader()->setObjectName("verticalHeader");
+			//verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+		}
+
 
 	protected:
 		void wheelEvent(QWheelEvent *event) override {

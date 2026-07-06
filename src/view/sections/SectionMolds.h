@@ -42,7 +42,7 @@ class SectionMolds : public Section {
 		TableSimple *mTable;
 
 		void createTable() {
-			QStringList headers = {"ID", "Tipo", "Quantidade Disponível"};
+			QStringList headers = {"ID", "Tipo", "Quantidade Disponível", "Nível de Complexidade", "Duração (h)"};
 
 			mTable = new TableSimple(0, headers.size());
 			mTable->setHorizontalHeaderLabels(headers);
@@ -74,6 +74,8 @@ class SectionMolds : public Section {
 					mTable->setItem(row, 0, new QTableWidgetItem(QString::number(mold.id().value())));
 					mTable->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(mold.type())));
 					mTable->setItem(row, 2, new QTableWidgetItem(QString::number(mold.available_quantity())));
+					mTable->setItem(row, 3, new QTableWidgetItem(QString::number(mold.complexity_level())));
+					mTable->setItem(row, 4, new QTableWidgetItem(QString::number(mold.duration())));
 				}
 				++row;
 			}

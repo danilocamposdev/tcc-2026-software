@@ -8,6 +8,7 @@ public:
 private:
     static bool is_empty(const QString& table);
     static void seed_clients();
+    static void seed_operators();
     static void seed_molds();
     static void seed_orders();
 };
